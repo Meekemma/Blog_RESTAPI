@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import *
 from django.utils.translation import gettext_lazy as _
 
 admin.site.site_header = "Tech Blog Administration"
@@ -42,3 +42,4 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)

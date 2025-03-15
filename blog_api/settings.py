@@ -37,8 +37,14 @@ INSTALLED_APPS = [
 
     #APPS
     'base.apps.BaseConfig',
+    'blog.apps.BlogConfig',
+
+    #Editor
+    'tinymce',
 
     'django_filters',
+
+    "debug_toolbar",
 
     #Django Restframework
     'rest_framework',
@@ -48,6 +54,12 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'base.User'
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 
 
 REST_FRAMEWORK = {
@@ -64,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
