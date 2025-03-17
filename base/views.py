@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view  
 from rest_framework.response import Response  
 from rest_framework import status 
-from rest_framework.decorators import api_view,permission_classes,parser_classes,renderer_classes
+from rest_framework.decorators import api_view,permission_classes,throttle_classes
 from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
 from .serializers import RegistrationSerializer, LoginSerializer, ChangePasswordSerializer,ProfileSerializer
+from base.throttles import RegisterThrottle, LoginThrottle, LogoutThrottle, ChangePasswordThrottle, UpdateProfileThrottle
+
 
 # JWT authentication imports
 from rest_framework_simplejwt.tokens import RefreshToken  
@@ -16,6 +18,7 @@ from .models import *
 
 
 @api_view(['POST'])
+@throttle_classes([RegisterThrottle])
 def registration_view(request):
     """Handles user registration"""
 
@@ -30,6 +33,7 @@ def registration_view(request):
 
 
 @api_view(['POST'])
+@throttle_classes([LoginThrottle])
 def login_view(request):
     """Handles user login and returns JWT tokens"""
 
@@ -54,6 +58,7 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@throttle_classes([LogoutThrottle])
 def logout_view(request):
     """
     Logs out a user by blacklisting their refresh token.
@@ -83,6 +88,7 @@ def logout_view(request):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([ChangePasswordThrottle])
 def change_password_view(request):
     """Handles user password change"""
 
@@ -99,6 +105,7 @@ def change_password_view(request):
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])  
+@throttle_classes([UpdateProfileThrottle])
 def update_profile(request):
     """
     Updates the authenticated user's profile.

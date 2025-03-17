@@ -1,3 +1,5 @@
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +17,9 @@ from .filters import PostFilter
 
 # Fetch all published posts with filtering and pagination
 @api_view(['GET'])
+@vary_on_cookie  
+@vary_on_headers("Authorization") 
+@cache_page(600)
 def fetch_all_posts(request):
     post_filter = PostFilter(request.GET, queryset=Post.objects.filter(status='published'))
     posts = post_filter.qs.order_by('-created_at')
@@ -30,6 +35,9 @@ def fetch_all_posts(request):
 
 # Fetch a single post with all details
 @api_view(['GET'])
+@vary_on_cookie
+@vary_on_headers("Authorization") 
+@cache_page(600)
 def fetch_single_post(request, post_id):
     post = get_object_or_404(
         Post.objects.prefetch_related('tags', 'comments').select_related('author', 'category'), id=post_id, status='published')
@@ -76,3 +84,10 @@ def update_comment(request, comment_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    comment.delete()
+    return Response({"detail": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

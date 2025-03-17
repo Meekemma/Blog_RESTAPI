@@ -1,4 +1,7 @@
 import os
+import dj_database_url
+from decouple import config
+
 
 from dotenv import load_dotenv
 
@@ -42,6 +45,8 @@ INSTALLED_APPS = [
     #Editor
     'tinymce',
 
+    'corsheaders',
+
     'django_filters',
 
     "debug_toolbar",
@@ -61,6 +66,14 @@ INTERNAL_IPS = [
 ]
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "cache_table",
+    }
+}
+
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -69,11 +82,29 @@ REST_FRAMEWORK = {
     
     # Pagination settings
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10,  
+    'PAGE_SIZE': 10, 
+
+
+    #Throttling Settings
+    'DEFAULT_THROTTLE_CLASSES': [
+
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    "DEFAULT_THROTTLE_RATES": {       
+        "login": "3/minute",      
+        "register": "5/minute",
+        "logout": "5/minute",     
+        "change_password": "3/hour", 
+        "update_profile": "10/hour", 
+    },
+
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -156,6 +187,10 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': dj_database_url.parse(config('DATABASE_URL'))
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -205,3 +240,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CORS_ALLOWED_ORIGINS = [
+    
+    "http://localhost:3000",  # Local development
+    
+    
+]
+
+CORS_ALLOW_CREDENTIALS = True
